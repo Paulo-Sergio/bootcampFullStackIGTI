@@ -1,0 +1,45 @@
+body {
+  padding: 40px;
+  font-family: monospace;
+}
+
+h1 {
+  text-align: center;
+}
+
+.container {
+  width: 60%;
+  margin: 0 auto;
+}
+
+#border {
+  border-style: solid;
+}
+
+.range-color {
+  display: flex;
+  flex-direction: row;
+  margin: 30px;
+}
+
+.range-color label {
+  width: 110px;
+  margin-right: 20px;
+  text-align: right;
+}
+
+.range-color input[type='range'] {
+  width: 190vh;
+}
+
+.range-color input[type='text'] {
+  width: 100px;
+  margin-left: 20px;
+}
+
+#result {
+  width: 200px;
+  height: 200px;
+  border: solid 2px #000;
+  margin: auto auto 20px auto;
+}
