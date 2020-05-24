@@ -22,6 +22,8 @@ window.addEventListener('load', () => {
     btnSearch = document.querySelector('#btnSearch');
     inputSearch = document.querySelector('#inputSearch');
 
+    handlerButton();
+
     fetchUsers();
   }, 1000);
 });
@@ -32,16 +34,14 @@ async function fetchUsers() {
 
   allUsers = json.results;
   searchUsers = json.results;
-  loading.removeAttribute('src');
 
-  render();
+  inputSearch.focus();
+  loading.removeAttribute('src');
 }
 
 function render() {
   renderUsersList();
   renderStatistics();
-
-  handlerButton();
 }
 
 function renderUsersList() {
@@ -63,13 +63,10 @@ function renderUsersList() {
   usersHTML += '</div>';
   tabUsers.innerHTML = usersHTML;
 
-  countUsers.textContent = calcCountUsers();
+  document.querySelector('#txtUsers').textContent = `${calcCountUsers()} usuários(s) encontrado(s)`;
 }
 
 function renderStatistics() {
-  calcCountMales();
-  calcCountFemales();
-
   let statisticsHTML = `
     <span>Sexo masculino: <strong>${calcCountMales()}</strong></span> <br>
     <span>Sexo feminino: <strong>${calcCountFemales()}</strong></span> <br>
@@ -77,33 +74,35 @@ function renderStatistics() {
     <span>Média das idades: <strong>${formatNumber(calcAverageAges())}</strong></span> <br>
   `;
 
+  document.querySelector('#txtStatistics').textContent = 'Estatísticas';
   tabStatistics.innerHTML = statisticsHTML;
 }
 
 function handlerButton() {
   btnSearch.addEventListener('click', () => {
-    searchUsers = allUsers.filter(user => {
-      const firstName = user.name.first.toLowerCase();
-      return firstName.includes(inputSearch.value.toLowerCase());
-    });
-    render();
+    filterUsers();
   });
 
   inputSearch.addEventListener('keyup', (e) => {
     if (e.target.value.length > 0) {
       btnSearch.disabled = false;
+
+      if (e.key === 'Enter') {
+        filterUsers();
+      }
     } else {
       btnSearch.disabled = true;
     }
-
-    if (e.key === 'Enter') {
-      searchUsers = allUsers.filter(user => {
-        const firstName = user.name.first.toLowerCase();
-        return firstName.includes(inputSearch.value.toLowerCase());
-      });
-      render();
-    }
   });
+}
+
+function filterUsers() {
+  searchUsers = allUsers.filter(user => {
+    const {first, last} = user.name;
+    const fullName = first.toLowerCase() + last.toLowerCase();
+    return fullName.includes(inputSearch.value.toLowerCase());
+  });
+  render();
 }
 
 function calcCountUsers() {
@@ -131,8 +130,8 @@ function calcAverageAges() {
   const result = searchUsers.reduce((accumulator, current) => {
     return accumulator + current.dob.age;
   }, 0);
-
-  return (result / (searchUsers.length));
+  
+  return searchUsers.length === 0 ? 0 : (result / (searchUsers.length));
 }
 
 function formatNumber(number) {
