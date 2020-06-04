@@ -149,7 +149,7 @@ router.get('/cidadeComMaiorNomePorEstado', async (req, res) => {
       let maiorNome = ''
       cidades.filter((cidade) => {
         if (cidade.Estado == estado.ID) {
-          if ((cidade.Nome).length >= maiorNome) {
+          if ((cidade.Nome).length > maiorNome.length) {
             maiorNome = cidade.Nome
           }
         }
@@ -157,9 +157,38 @@ router.get('/cidadeComMaiorNomePorEstado', async (req, res) => {
       results.push({ uf: estado.Sigla, maiorNome: maiorNome })
     });
 
-    /*results.sort(function (a, b) {
-      return a.qtd < b.qtd ? -1 : a.qtd > b.qtd ? 1 : 0;
-    });*/
+    res.send({ resultado: results })
+  } catch (err) {
+    console.log(err)
+    res.status(400).send({ error: err.message })
+  }
+})
+
+/**
+ * 6) Criar um método que imprima no console um array com a cidade de menor nome de cada estado, seguida de seu UF. Em caso de empate, 
+ * considerar a ordem alfabética para ordená-los e então retorne o primeiro. 
+ * Por exemplo: [“Nome da Cidade – UF”, “Nome da Cidade – UF”, ...].
+ */
+router.get('/cidadeComMenorNomePorEstado', async (req, res) => {
+  let results = [];
+
+  try {
+    let estados = await fs.readFile(global.estados, 'utf-8')
+    estados = JSON.parse(estados)
+    let cidades = await fs.readFile(global.cidades, 'utf-8')
+    cidades = JSON.parse(cidades)
+
+    estados.forEach(estado => {
+      let menorNome = 'cidadeComMenorNomePorEstado'
+      cidades.filter((cidade) => {
+        if (cidade.Estado == estado.ID) {
+          if ((cidade.Nome).length < menorNome.length) {
+            menorNome = cidade.Nome
+          }
+        }
+      })
+      results.push({ uf: estado.Sigla, menorNome: menorNome })
+    });
 
     res.send({ resultado: results })
   } catch (err) {
@@ -167,5 +196,76 @@ router.get('/cidadeComMaiorNomePorEstado', async (req, res) => {
     res.status(400).send({ error: err.message })
   }
 })
+
+/**
+ * 7) Criar um método que imprima no console a cidade de maior nome entre todos os estados, seguido do seu UF. 
+ * Em caso de empate, considerar a ordem alfabética para ordená-los e então retornar o primeiro. 
+ * Exemplo: “Nome da Cidade - UF".
+ */
+router.get('/cidadeComMaiorNomeEntreTodosEstados', async (req, res) => {
+  let results = [];
+
+  try {
+    let estados = await fs.readFile(global.estados, 'utf-8')
+    estados = JSON.parse(estados)
+    let cidades = await fs.readFile(global.cidades, 'utf-8')
+    cidades = JSON.parse(cidades)
+
+    let maiorCidadeNome = ''
+    let estadoNome = ''
+    cidades.forEach((cidade) => {
+      if ((cidade.Nome).length > maiorCidadeNome.length) {
+        maiorCidadeNome = cidade.Nome
+        estados.find(estado => {
+          if (cidade.Estado == estado.ID) {
+            estadoNome = estado.Sigla
+          }
+        })
+      }
+    })
+    results.push({ uf: estadoNome, maiorCidadeNome: maiorCidadeNome })
+
+    res.send({ resultado: results })
+  } catch (err) {
+    console.log(err)
+    res.status(400).send({ error: err.message })
+  }
+})
+
+/**
+ * 8) Criar um método que imprima no console a cidade de menor nome entre todos os estados, seguido do seu UF. 
+ * Em caso de empate, considerar a ordem alfabética para ordená-los e então retornar o primeiro. 
+ * Exemplo: “Nome da Cidade - UF".
+ */
+router.get('/cidadeComMenorNomeEntreTodosEstados', async (req, res) => {
+  let results = [];
+
+  try {
+    let estados = await fs.readFile(global.estados, 'utf-8')
+    estados = JSON.parse(estados)
+    let cidades = await fs.readFile(global.cidades, 'utf-8')
+    cidades = JSON.parse(cidades)
+
+    let menorCidadeNome = 'cidadeComMenorNomeEntreTodosEstados'
+    let estadoNome = ''
+    cidades.forEach((cidade) => {
+      if ((cidade.Nome).length < menorCidadeNome.length) {
+        menorCidadeNome = cidade.Nome
+        estados.find(estado => {
+          if (cidade.Estado == estado.ID) {
+            estadoNome = estado.Sigla
+          }
+        })
+      }
+    })
+    results.push({ uf: estadoNome, menorCidadeNome: menorCidadeNome })
+
+    res.send({ resultado: results })
+  } catch (err) {
+    console.log(err)
+    res.status(400).send({ error: err.message })
+  }
+})
+
 
 module.exports = router
